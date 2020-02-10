@@ -7,8 +7,6 @@
                  :file-list="list_ji"
                  :on-change="handleChangeJi"
                  :http-request="handleJiUpload"
-                 :on-success="handleSuccess"
-                 :on-error="handleError"
                  :auto-upload="false">
         <el-button slot="trigger"
                    size="small"
@@ -17,9 +15,11 @@
                    size="small"
                    type="success"
                    @click="submitUploadJi">上传集装箱图片</el-button>
-        <div slot="tip"
-             class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
       </el-upload>
+      <el-image style="width: 600px; height: 400px"
+                :src="jiimg"
+                :preview-src-list="srcListJi">
+      </el-image>
       <span>集装箱号:{{jinum}}</span>
     </div>
 
@@ -29,8 +29,6 @@
                  action='url'
                  :file-list="list_feng"
                  :on-change="handleChangeFeng"
-                 :on-success="handleSuccess"
-                 :on-error="handleError"
                  :http-request="handleFengUpload"
                  :auto-upload="false">
         <el-button slot="trigger"
@@ -40,9 +38,11 @@
                    size="small"
                    type="success"
                    @click="submitUploadFeng">上传封识号图片</el-button>
-        <div slot="tip"
-             class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
       </el-upload>
+      <el-image style="width: 600px; height: 400px"
+                :src="fengimg"
+                :preview-src-list="srcListFeng">
+      </el-image>
       <span>封识号:{{fengnum}}</span>
     </div>
   </div>
@@ -53,15 +53,17 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+      urlji: '',
+      jiimg: '',
+      srcListJi: [],
+      urlfeng: '',
+      fengimg: '',
+      srcListFeng: [],
       jinum: '',
-      fileji: '',
       list_ji: [],
       fengnum: '',
-      filefeng: '',
       list_feng: []
     }
-  },
-  mounted () {
   },
   methods: {
     submitUploadJi () {
@@ -72,24 +74,33 @@ export default {
     },
     handleJiUpload () {
       const params = {
-        'file': this.fileji
+        'img': this.urlji
       }
       this.service.postJi(params)
         .then((res) => {
           console.log(res)
           if (res.code === '00000000') {
-            this.jinum = res.data.containerNum
+            this.$message({
+              message: '上传成功',
+              type: 'success'
+            })
+            this.jinum = res.data.containerNum || '无'
           }
         })
     },
     handleFengUpload () {
       const params = {
-        'file': this.filefeng
+        'img': this.urlfeng
       }
       this.service.postFeng(params)
         .then((res) => {
+          console.log(res)
           if (res.code === '00000000') {
-            this.fengnum = res.data.sealRecogNum
+            this.$message({
+              message: '上传成功',
+              type: 'success'
+            })
+            this.fengnum = res.data.sealRecogNum || '无'
           }
         })
     },
@@ -97,25 +108,27 @@ export default {
       let arr = []
       arr.push(fileList[fileList.length - 1])
       this.list_ji = arr
-      this.fileji = file
+      let reader = new FileReader()
+      reader.readAsDataURL(file.raw)
+      let that = this
+      reader.onload = function (e) {
+        that.jiimg = e.target.result
+        that.srcListJi.push(that.jiimg)
+        that.urlji = e.target.result.split('base64,')[1]
+      }
     },
     handleChangeFeng (file, fileList) {
       let arr = []
       arr.push(fileList[fileList.length - 1])
       this.list_feng = arr
-      this.filefeng = file
-    },
-    handleSuccess (response, file, fileList) {
-      console.log(response)
-      this.fengnum = response.data.sealRecogNum || this.fengnum
-      this.jinum = response.data.containerNum || this.jinum
-      this.$message({
-        message: '上传成功',
-        type: 'success'
-      })
-    },
-    handleError () {
-      this.$message.error('上传失败')
+      let reader = new FileReader()
+      reader.readAsDataURL(file.raw)
+      let that = this
+      reader.onload = function (e) {
+        that.fengimg = e.target.result
+        that.srcListFeng.push(that.fengimg)
+        that.urlfeng = e.target.result.split('base64,')[1]
+      }
     }
   }
 }
@@ -123,11 +136,12 @@ export default {
 
 <style scoped>
 .li {
-  margin-top: 200px;
+  margin-top: 10px;
 }
 span {
   display: block;
-  margin-left: -400px;
+  text-align: left;
+  padding-left: 400px;
   margin-top: 20px;
 }
 </style>

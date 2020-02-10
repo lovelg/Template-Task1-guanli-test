@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Vue from 'vue'
 
 // 创建axios实例
 const service = axios.create({
@@ -12,6 +13,7 @@ service.interceptors.request.use(
     return config
   },
   error => {
+    Vue.$message.error('上传失败')
     console.log(error) // for debug
     Promise.reject(error)
   }
