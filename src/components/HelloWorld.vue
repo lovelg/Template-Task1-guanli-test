@@ -85,6 +85,8 @@ export default {
               type: 'success'
             })
             this.jinum = res.data.containerNum || '无'
+          } else {
+            this.$message.error('上传失败')
           }
         })
     },
@@ -95,12 +97,14 @@ export default {
       this.service.postFeng(params)
         .then((res) => {
           console.log(res)
-          if (res.code === '00000000') {
+          if (res.success) {
             this.$message({
               message: '上传成功',
               type: 'success'
             })
-            this.fengnum = res.data.sealRecogNum || '无'
+            this.fengnum = res.data.toString() || '无'
+          } else {
+            this.$message.error('上传失败')
           }
         })
     },

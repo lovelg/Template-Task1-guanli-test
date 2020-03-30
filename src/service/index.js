@@ -5,6 +5,6 @@ export default {
     return Server.post('/cloudwalk/customs/container/ocr/imgRecog', params)
   },
   postFeng (params) {
-    return Server.post('/cloudwalk/customs/container/ocr/imgRecog', params)
+    return Server.post('/cloudwalk/customs/container/ocr/uploadImgSealRecog', params)
   }
 }
